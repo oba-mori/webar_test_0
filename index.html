@@ -108,25 +108,8 @@ https://note.com/npaka/n/na4dd3eaa8e82
 <canvas id="xrCanvas"></canvas>
 
 
-
-
 <!-- three.min.js(r113.2)を(ファイルから直接)読み込む three.js(r113.2)の圧縮版 -->
-<!-- <script src="./three.min.js"></script> -->
-
-
-
-
-
-
-<script type="module">
-//three.module.js(ver0.113.2)からexportされたclassをimport (importするものを一つ一つ指定する必要もあるが数が多いとめんどくさいため、classに要素として追加してclass名で呼び出すと楽)
-//JSファイル(のclass)をCDNからimportする場合の書き方()
-// import * as THREE from 'https://unpkg.com/three@0.113.2/build/three.module.js';
-
-//JSファイル(のclass)を直接importする場合の書き方
-import * as THREE from './three.module.js';     //ver113.2
-</script>
-
+<script src="./three.min.js"></script>
 
 
 
@@ -137,27 +120,15 @@ import * as THREE from './three.module.js';     //ver113.2
 <!-- <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/js/loaders/GLTFLoader.js"></script> -->
 
 
-
-
-<!-- 
-<script>
-  
-// three.js、GLTFLoader.jsをインポート
-// import * as THREE from 'three';
-// import { GLTFLoader } from 'gltf-loader';
-
-// // パッケージ名ではなく、相対パス、又は絶対パスを使用する必要があるため
-// import * as THREE from './three.module.js';
-</script> -->
-
 <script type="module">
-import { GLTFLoader } from './GLTFLoader.js';
-</script>
+//three.module.js(ver0.113.2)からexportされたclassをimport (importするものを一つ一つ指定する必要もあるが数が多いとめんどくさいため、classに要素として追加してclass名で呼び出すと楽)
+//JSファイル(のclass)をCDNからimportする場合の書き方()
+// import * as THREE from 'https://unpkg.com/three@0.113.2/build/three.module.js';
+
+//JSファイル(のclass)を直接importする場合の書き方
+import * as THREE from './three.module.js';     //ver113.2
 
 
-
-<script>
-// Three.jsとGLTFLoaderを使用したコードの記述
 
 //const:修飾子  値の変更不可、ブロックスコープ「変数宣言した{}内でのみ呼び出し可能」、宣言のみはできず必ず値を代入する必要がある
 
@@ -256,33 +227,33 @@ const parentFunc = async function () {
 
 
 
-    // // //オブジェクト作成-平面に対して並行に表示されるグリッド-
-    // // /*scene.add(); → ()内のオブジェクトをsceneに追加*/
-    // // scene.add( new THREE.GridHelper( 100, 100 ) );  //オブジェクトをシーンに追加
+    // //オブジェクト作成-平面に対して並行に表示されるグリッド-
+    // /*scene.add(); → ()内のオブジェクトをsceneに追加*/
+    // scene.add( new THREE.GridHelper( 100, 100 ) );  //オブジェクトをシーンに追加
 
-    // //オブジェクト作成-立方体-
-    // const box = new THREE.Mesh(
-    //   new THREE.BoxBufferGeometry( .2, .2, .2 ),  //寸法
-    //   new THREE.MeshNormalMaterial(),            
-    // );
-    // scene.add( box );   //scene.add(box); → box(立方体)というオブジェクトをシーンに追加(これで画面に描画される)
+    //オブジェクト作成-立方体-
+    const box = new THREE.Mesh(
+      new THREE.BoxBufferGeometry( .2, .2, .2 ),  //寸法
+      new THREE.MeshNormalMaterial(),            
+    );
+    scene.add( box );   //scene.add(box); → box(立方体)というオブジェクトをシーンに追加(これで画面に描画される)
 
-    // //オブジェクト作成-円錐-
-    // const cone = new THREE.Mesh(
-    //   new THREE.ConeGeometry( 0.1, 0.5, 32, 32 ), //寸法
-    //   new THREE.MeshNormalMaterial(),             
-    // );
-    // scene.add( cone );  //coneというオブジェクト(円錐)をシーンに追加(これで画面に描画される)
+    //オブジェクト作成-円錐-
+    const cone = new THREE.Mesh(
+      new THREE.ConeGeometry( 0.1, 0.5, 32, 32 ), //寸法
+      new THREE.MeshNormalMaterial(),             
+    );
+    scene.add( cone );  //coneというオブジェクト(円錐)をシーンに追加(これで画面に描画される)
 
 
     //GLB形式のモデルデータを読み込む
-    const loader = new THREE.GLTFLoader();
+    // const loader = new THREE.GLTFLoader();
 
-    //glbファイルのパスを指定
-    loader.load('./cube_small.glb', function(gltf) {
-        // 読み込み後に3D空間に追加
-        scene.add(gltf.scene);
-    });
+    // //glbファイルのパスを指定
+    // loader.load('./cube_small.glb', function(gltf) {
+    //     // 読み込み後に3D空間に追加
+    //     scene.add(gltf.scene);
+    // });
 
 
 
@@ -427,7 +398,3 @@ parentFunc();
 
 </body>
 </html>
-
-
-
-
