@@ -108,10 +108,8 @@ https://note.com/npaka/n/na4dd3eaa8e82
 <canvas id="xrCanvas"></canvas>
 
 
-
-
 <!-- three.min.js(r113.2)を(ファイルから直接)読み込む three.js(r113.2)の圧縮版 -->
-<!-- <script src="./three.min.js"></script> -->
+<script src="./three.min.js"></script>
 
 
 
@@ -129,8 +127,6 @@ import * as THREE from './three.module.js';     //ver113.2
 
 
 
-
-
 <!-- GLTFLoader.js(r113.2)を(ファイルから直接)読み込む -->
 <script src="./GLTFLoader.js"></script>
 
@@ -139,29 +135,8 @@ import * as THREE from './three.module.js';     //ver113.2
 
 
 
-<!-- 
-<script>
-  
-// three.js、GLTFLoader.jsをインポート
-// import * as THREE from 'three';
-// import { GLTFLoader } from 'gltf-loader';
-
-// // パッケージ名ではなく、相対パス、又は絶対パスを使用する必要があるため
-// import * as THREE from './three.module.js';
-</script> -->
-
-<!-- <script type="module">
-import { GLTFLoader } from './GLTFLoader.js';
-</script> -->
-
-
-
-
-
 
 <script type="module">
-// Three.jsとGLTFLoaderを使用したコードの記述
-
 //const:修飾子  値の変更不可、ブロックスコープ「変数宣言した{}内でのみ呼び出し可能」、宣言のみはできず必ず値を代入する必要がある
 
 //window.innerWidth:ウィンドウ内部の幅をピクセル単位で返す(読み取り専用)
@@ -259,26 +234,26 @@ const parentFunc = async function () {
 
 
 
-    // // //オブジェクト作成-平面に対して並行に表示されるグリッド-
-    // // /*scene.add(); → ()内のオブジェクトをsceneに追加*/
-    // // scene.add( new THREE.GridHelper( 100, 100 ) );  //オブジェクトをシーンに追加
+    // //オブジェクト作成-平面に対して並行に表示されるグリッド-
+    // /*scene.add(); → ()内のオブジェクトをsceneに追加*/
+    // scene.add( new THREE.GridHelper( 100, 100 ) );  //オブジェクトをシーンに追加
 
-    // //オブジェクト作成-立方体-
-    // const box = new THREE.Mesh(
-    //   new THREE.BoxBufferGeometry( .2, .2, .2 ),  //寸法
-    //   new THREE.MeshNormalMaterial(),            
-    // );
-    // scene.add( box );   //scene.add(box); → box(立方体)というオブジェクトをシーンに追加(これで画面に描画される)
+    //オブジェクト作成-立方体-
+    const box = new THREE.Mesh(
+      new THREE.BoxBufferGeometry( .2, .2, .2 ),  //寸法
+      new THREE.MeshNormalMaterial(),            
+    );
+    scene.add( box );   //scene.add(box); → box(立方体)というオブジェクトをシーンに追加(これで画面に描画される)
 
-    // //オブジェクト作成-円錐-
-    // const cone = new THREE.Mesh(
-    //   new THREE.ConeGeometry( 0.1, 0.5, 32, 32 ), //寸法
-    //   new THREE.MeshNormalMaterial(),             
-    // );
-    // scene.add( cone );  //coneというオブジェクト(円錐)をシーンに追加(これで画面に描画される)
+    //オブジェクト作成-円錐-
+    const cone = new THREE.Mesh(
+      new THREE.ConeGeometry( 0.1, 0.5, 32, 32 ), //寸法
+      new THREE.MeshNormalMaterial(),             
+    );
+    scene.add( cone );  //coneというオブジェクト(円錐)をシーンに追加(これで画面に描画される)
 
 
-    //GLB形式のモデルデータを読み込む
+    GLB形式のモデルデータを読み込む
     const loader = new THREE.GLTFLoader();
 
     //glbファイルのパスを指定
@@ -430,7 +405,3 @@ parentFunc();
 
 </body>
 </html>
-
-
-
-
