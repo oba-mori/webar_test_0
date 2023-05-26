@@ -1,22 +1,400 @@
-<!-- WebAR_test_0 -->
 <!-- 
-  マーカーレス
-  平面検知
-  ブラウザAR
+  three.module.jsのファイル(のexportしたclass)を直接取り込む
+  参考サイトは大抵CDNで取り込んでいるが、ローカルで取り込んだ方が安全
+
+  注意点：
+  ローカルサーバに配置したJSファイルのclassをimportすることは出来ない
+      //JSファイル(のclass)を直接importする場合の書き方
+      import * as THREE from './three.module.js';     //ver113.2
+  GithubのようなWebサーバからJSファイルを読み出す必要がある。
+  CDNから読み出す場合は、それがWebサーバ上に配置されているため問題なくアクセスできる。
+
+
+  内容は hittestのコードをそのまま使用している
+  (平面検出 → 常に画面の中央に円錐を表示させる)
+ -->
+
+
+<!-- 
+参考
+コード全体の説明
+https://www.codegrid.net/articles/2020-webxr-3/
+
+./WebXR Device APIを使う2.docx
+
+
+XRHitTestSource
+https://developer.mozilla.org/en-US/docs/Web/API/XRHitTestSource
+
+ソースコード
+https://github.com/codegrid/2020-webxr/blob/master/04_xr-hit-test.html
+
+
+
+
+
+参考
+
+【 renderer.autoClearの説明 】
+https://blog.phoenixdesign.jp/inaba_mitsu/4990
+
+
+【 new THREE.Scene();の説明 】
+Three.jsのscene(シーン)とは、そもそもThree.jsのscene（シーン）とは、シーンオブジェクトに追加したオブジェクトのみ、空間内に配置され、実際の描画の対象になるというものです。
+つまり、箱や球体のオブジェクトを作っても、sceneに追加しないと画面には、作ったオブジェクトは描画されません。
+
+https://gupuru.hatenablog.jp/entry/2013/11/21/173903
+
+
+
+【 matrixAutoUpdateの説明 】
+3Dオブジェクトの変換を更新する方法は2つある(objectとなっている所はこのプログラムでははcameraとなる)
+
+1：オブジェクトのposition、quaternion、scale(位置、回転、スケール)プロパティを変更し、「three.js」がこれらプロパティからオブジェクトのMatrixを再計算できるようにします。
+    object.position.copy(start_position);
+    object.quaternion.copy(quaternion);
+
+    デフォルトでは、matrixAutoUpdateはtrueに設定されており、Matrixは自動的に再計算されます。オブジェクトが静的である場合、または再計算が発生するタイミングを手動で制御する場合は、falseに指定することでパフォーマンスを向上させることができます。
+    object.matrixAutoUpdate = false;
   
+    プロパティを変更した後、Matrixを手動で更新します。
+    object.updateMatrix();
+
+
+
+2：オブジェクトのMatrixを直接変更します。 Matrix4には、Matrixを変更するための様々なメソッドがあります。
+    object.matrix.setRotationFromQuaternion(quaternion);
+    object.matrix.setPosition(start_position);
+    object.matrixAutoUpdate = false;
+
+    この場合、matrixAutoUpdateをfalseに設定し、updateMatrix()を呼び出さないようにする必要があります。updateMatrix()を呼び出すと、Matrixに加えた手動の変更が無効になります。
+
+
+https://note.com/npaka/n/na4dd3eaa8e82
+
+
+
+
+【】
+
+
+【】
+
 
 
  -->
 
 
 
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平面検出</title>
+<style>
+  body {margin: 0;}
+  canvas{display: block;}
+
+  /* フォントサイズ */
+  #startButton{font-size: 50px;}
+</style>
+</head>
+<body>
+
+<!-- WebXR を起動するためには、ユーザーが意図して起動するための「ボタン」が必須。-->
+<button type="button" id="startButton">ARカメラ起動</button>
+<!-- WebXR の描画結果は WebGL の canvas となる。-->
+<canvas id="xrCanvas"></canvas>
+
+
+<!-- three.min.js(r113.2)を(ファイルから直接)読み込む three.js(r113.2)の圧縮版 -->
+<script src="./three.min.js"></script>
 
 
 
 
+<!-- GLTFLoader.js(r113.2)を(ファイルから直接)読み込む -->
+<script src="./GLTFLoader.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/js/loaders/GLTFLoader.js"></script> -->
+
+
+<script type="module">
+//three.module.js(ver0.113.2)からexportされたclassをimport (importするものを一つ一つ指定する必要もあるが数が多いとめんどくさいため、classに要素として追加してclass名で呼び出すと楽)
+//JSファイル(のclass)をCDNからimportする場合の書き方()
+// import * as THREE from 'https://unpkg.com/three@0.113.2/build/three.module.js';
+
+//JSファイル(のclass)を直接importする場合の書き方
+import * as THREE from './three.module.js';     //ver113.2
+
+
+
+//const:修飾子  値の変更不可、ブロックスコープ「変数宣言した{}内でのみ呼び出し可能」、宣言のみはできず必ず値を代入する必要がある
+
+//window.innerWidth:ウィンドウ内部の幅をピクセル単位で返す(読み取り専用)
+const width  = window.innerWidth;
+
+//window.innerWidth:ウィンドウ内部の高さをピクセル単位で返す(読み取り専用)
+const height = window.innerHeight;
+
+//document.getElementById( 'id' ):id指定した値のHTML要素を取得 → 今回は'startbutton'というidで指定したHTML要素(「ARカメラ」と書かれたボタン)
+//コード全体:id が'startbutton'(「ARカメラ」というボタン)のHTML要素を、変数$button に代入する
+//結果:$button = 「 <button type="button" id="startButton">ARカメラ起動</button> 」 ← これが要素
+const $button = document.getElementById( 'startButton' );
+//変数名の$buttonの$は変数名の一部"$button"で一つの変数名、$自体に特別な意味があるわけじゃない、おそらくHTML要素を入れている事を分かりやすくするためではないかと思う
 
 
 
 
+//変数parentFuncを宣言(後で変数名で関数を呼び出すため)、async()
+
+//無名関数を使用すると短く書けるが分かりずらい。その下の２パターンはアロー関数、関数式を利用する場合のもの。(計3パターン、パターンによって括弧の終わり方が少し変わる)
+// ( async () => {
+// const parentFunc = async () => 
+const parentFunc = async function () {
+// 宣言した変数parentFuncに同期関数を代入
+
+  // 任意のモードが利用可能かを調べる
+  /*デバイスがWebXR機能のARモードに対応しているかを調べ、結果を変数isArSupportedに代入()*/
+  const isArSupported = navigator.xr && await navigator.xr.isSessionSupported( 'immersive-ar' );
+  //await：awaitが付いている処理が終わるまで待機する
+
+  // ARモードが利用できなければ起動ボタンを無効化
+  /*対応していれば変数に1が入るはず？対応していなければnull*/
+  /*ボタンを無効にするには、buttonタグのHTML要素のdisabledをtrueに変更する。
+  ARモードに対応していなければnull → 0が代入されるはずなので、それを反転(0 → 1 つまりtrue)して変更すれば無効できる*/
+  $button.disabled =! isArSupported;
+  
+  
 
 
+  //----------------- ARのメインプログラム ----------------------
+
+  // ユーザーが操作して初めて WebXR を起動できる
+  /*AR起動ボタンをクリックするとonEnterAR関数が実行される*/
+  $button.addEventListener( 'click', onEnterAR );
+  
+
+  /*asyncを付け同期関数onEnterARを宣言*/
+  async function onEnterAR() {
+
+    /*AR起動ボタンを非表示("none"で対象を非表示にする)*/
+    $button.style.display = 'none';
+
+    //この定型文がある
+    /*関数呼び出し用変数xrSession宣言。navigator.xr.requestSession関数(WebXRの機能)に'immersive-ar'*/
+    const xrSession = await navigator.xr.requestSession
+    (
+      'immersive-ar',   //WebXRをARとして使いたい → 'immersive-ar'を入れるとカメラからの現実の風景を入力することができる
+      { requiredFeatures: [ 'local', 'hit-test' ] } //requiredFeaturesでlocalとhit-testのリストを取得
+    );
+
+
+    /* 蛇足
+    // 本来は `getContext( 'webgl' )` で gl コンテキストを引き出す際に
+    // オプションとして「`xrCompatible: true`」を明示する必要がある。
+    // three.js では常に「`xrCompatible: true`」のオプションがついているので
+    // ここでは特別な設定をせずに XR として利用することができる
+    */
+    /*レンダラー(3Dオブジェクトを表示させる枠？エリア？のようなもの)を作成*/
+    /*レンダラーを作成し、HTML要素のcanvas(idはxrCanvas)要素を渡す。それを変数で呼び出すために変数rendererを宣言*/
+    const renderer = new THREE.WebGLRenderer( { canvas: xrCanvas } );
+
+    //最後の方に書いてある renderer.render()を呼び出した時 → rendererが前のレンダリング結果を自動的に消すか消さないかを設定する(falseで消さないようにする)
+    renderer.autoClear = false;
+
+    //レンダラーのサイズを調整(画面の幅・高さに合わせる)
+    renderer.setSize( width, height );  //width：幅、height：高さ
+
+
+    //多分現実世界の風景を写すためのなにか レンダリングコンテキスト？
+    const gl = renderer.getContext();
+
+   
+    /*Three.jsのscene(シーン)とは、そもそもThree.jsのscene（シーン）とは、シーンオブジェクトに追加したオブジェクトのみが、空間内に配置され、実際の描画の対象になるというものです。
+    つまり、箱や球体のオブジェクトを作っても、sceneに追加しないと画面には、作ったオブジェクトは描画されません。*/
+    //シーンオブジェクトの生成関数を変数に登録
+    const scene = new THREE.Scene();
+
+    //遠近感を表現できるカメラ関数を変数に登録
+    const camera = new THREE.PerspectiveCamera();
+    
+    //matrixAutoUpdateをfalseに設定することで、手動で3Dオブジェクトの位置、回転、スケールを変更することが出来る
+    /*デフォルトではtrueに設定されており、three.jsが位置、回転、スケールを自動で再計算する*/
+    camera.matrixAutoUpdate = false;
+    
+
+
+
+    // //オブジェクト作成-平面に対して並行に表示されるグリッド-
+    // /*scene.add(); → ()内のオブジェクトをsceneに追加*/
+    // scene.add( new THREE.GridHelper( 100, 100 ) );  //オブジェクトをシーンに追加
+
+    //オブジェクト作成-立方体-
+    const box = new THREE.Mesh(
+      new THREE.BoxBufferGeometry( .2, .2, .2 ),  //寸法
+      new THREE.MeshNormalMaterial(),            
+    );
+    scene.add( box );   //scene.add(box); → box(立方体)というオブジェクトをシーンに追加(これで画面に描画される)
+
+    //オブジェクト作成-円錐-
+    const cone = new THREE.Mesh(
+      new THREE.ConeGeometry( 0.1, 0.5, 32, 32 ), //寸法
+      new THREE.MeshNormalMaterial(),             
+    );
+    scene.add( cone );  //coneというオブジェクト(円錐)をシーンに追加(これで画面に描画される)
+
+
+    //GLB形式のモデルデータを読み込む
+    // const loader = new THREE.GLTFLoader();
+
+    // //glbファイルのパスを指定
+    // loader.load('./cube_small.glb', function(gltf) {
+    //     // 読み込み後に3D空間に追加
+    //     scene.add(gltf.scene);
+    // });
+
+
+
+    // 「デバイスのカメラから取り込まれた現実の風景」の受け先となる、baseLayer を作る。
+    /*XRWebGLLayer() コンストラクタは、新規作成して返す XRWebGLLayer のWebXR装置および3Dシーンをレンダリングするために使用されるWebGLのグラフィック層との間の結合を提供する、オブジェクト。
+    */
+    const xrWebGLLayer = new XRWebGLLayer( xrSession, gl );
+
+    // updateRenderState を設定していない場合、`xrSession.requestAnimationFrame` が呼ばれないので注意
+    xrSession.updateRenderState( { baseLayer: xrWebGLLayer } );
+
+    // 「デバイスの姿勢（pose）」の参照先を作る
+    // これにより、デバイスの傾きや位置を取得できるようになる。
+    const referenceSpace = await xrSession.requestReferenceSpace(
+      'local',
+      { requiredFeatures: ['local', 'hit-test'] }
+    );
+
+
+    // ヒットテスト用の Ray を作成する。
+    // 以下の `hitTestInputReferenceSpace` は Ray の開始位置となる。
+    // 特にオフセットを指定していないので、視点の中心が Ray の始点となるが、
+    // 必要に応じてずらすことも可能。
+    const hitTestInputReferenceSpace = await xrSession.requestReferenceSpace( 'viewer' );
+    const hitTestSource = await xrSession.requestHitTestSource( { space: hitTestInputReferenceSpace } );
+
+
+
+
+    // `window.requestAnimationFrame` ではなく、
+    // セッションの `requestAnimationFrame` に応じて描画する。
+    // 理由は以下の通り。
+    //
+    // - `window.requestAnimationFrame` の FPS はブラウザーの内部実装で最大 60 に抑えられているが、
+    //   `xrSession.requestAnimationFrame` はデバイスの画面リフレッシュレートにに応じる
+    // - `xrSession.requestAnimationFrame` では、第2引数として `xrFrame` を受け取ることができる。
+    //   `xrFrame` は `window.requestAnimationFrame` には存在しない。
+    xrSession.requestAnimationFrame( onDrawFrame );
+
+    //
+    function onDrawFrame( timestamp, xrFrame ) {
+
+      xrSession.requestAnimationFrame( onDrawFrame );
+      // 姿勢を取り出す。行列（matrix）の要素が格納された配列で受け取ることができる。
+      const pose = xrFrame.getViewerPose( referenceSpace );
+
+      // xrFrame からは、現在のセッション、とベースレイヤーを取り出すこともできる。
+      // xrFrame.session === xrSession;
+      // xrSession.renderState.baseLayer === xrWebGLLayer;
+
+      // ヒットテストを実行する。
+      if ( hitTestSource && pose ) {
+
+        const hitTestResults = xrFrame.getHitTestResults( hitTestSource );
+
+        // なにかにヒットしていたら、最初にヒットした平面の座標を取得する。
+        // 座標は pose として取得でき、その中に位置や角度が格納されている。
+        if ( hitTestResults.length > 0 ) {
+
+          const pose = hitTestResults[ 0 ].getPose( referenceSpace );
+          
+          /*ヒット地点にオブジェクトを配置*/
+          //立方体
+          box.position.set(
+            pose.transform.position.x,
+            pose.transform.position.y,
+            pose.transform.position.z
+          );
+          box.quaternion.set(
+            pose.transform.orientation.x,
+            pose.transform.orientation.y,
+            pose.transform.orientation.z,
+            pose.transform.orientation.w,
+          );
+          
+          
+          //円錐
+          cone.position.set(
+            pose.transform.position.x,
+            pose.transform.position.y,
+            pose.transform.position.z
+          );
+          cone.quaternion.set(
+            pose.transform.orientation.x,
+            pose.transform.orientation.y,
+            pose.transform.orientation.z,
+            pose.transform.orientation.w,
+          );
+
+        }
+
+      }
+
+      // 現実の風景をWebGLのフレームバッファーに転写する
+      gl.bindFramebuffer( gl.FRAMEBUFFER, xrWebGLLayer.framebuffer );
+
+      if ( ! pose ) return;
+
+      // xrSessionが右目と左目の両方に対応している場合、ビューの長さは2になります。
+      //そうでない場合、長さは1です
+      pose.views.forEach( ( view ) => {
+
+        const viewport = xrWebGLLayer.getViewport( view );
+        renderer.setSize( viewport.width, viewport.height );
+
+        //camera：遠近感を表現できるカメラ関数が登録された変数
+        camera.matrix.fromArray( view.transform.matrix );
+        camera.projectionMatrix.fromArray( view.projectionMatrix );
+        camera.updateMatrixWorld( true );
+
+        renderer.clearDepth();
+        renderer.render( scene, camera );
+
+      } );
+
+    }
+
+  }
+
+
+
+}               
+parentFunc();   
+/* 「const parentFunc = async () => { 」または「const parentFunc = async function () { 」を使用する場合は直上のコード
+つまり
+--ここから--
+  }
+  parentFunc();
+--ここまで--
+の二行が必要
+*/
+  
+
+//  } )();
+/*「( async () => { 」のように無名関数を利用する場合は直上の
+  「 } )(); 」
+の一行が必要
+*/
+
+
+</script>
+
+</body>
+</html>
