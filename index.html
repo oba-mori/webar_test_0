@@ -109,15 +109,11 @@ https://note.com/npaka/n/na4dd3eaa8e82
 
 
 <!-- three.min.js(r113.2)を(ファイルから直接)読み込む three.js(r113.2)の圧縮版 -->
-<!-- <script src="./three.min.js"></script> -->
+<script src="./three.min.js"></script>
 
 
 
 
-<!-- GLTFLoader.js(r113.2)を(ファイルから直接)読み込む -->
-<!-- <script src="./GLTFLoader.js"></script> -->
-
-<!-- <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/js/loaders/GLTFLoader.js"></script> -->
 
 
 <script type="module">
@@ -126,19 +122,30 @@ https://note.com/npaka/n/na4dd3eaa8e82
 // import * as THREE from 'https://unpkg.com/three@0.113.2/build/three.module.js';
 
 //JSファイル(のclass)を直接importする場合の書き方
-// import * as THREE from './three.module.js';     //ver113.2
+import * as THREE from './three.module.js';     //ver113.2
+</script>
 
 
 
 
 
+<!-- GLTFLoader.js(r113.2)を(ファイルから直接)読み込む -->
+<script src="./GLTFLoader.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/js/loaders/GLTFLoader.js"></script> -->
+
+
+
+
+
+<script>
 // three.js、GLTFLoader.jsをインポート
 // import * as THREE from 'three';
 // import { GLTFLoader } from 'gltf-loader';
 
-// パッケージ名ではなく、相対パス、又は絶対パスを使用する必要があるため
-import * as THREE from './three.module.js';
-import { GLTFLoader } from './GLTFLoader.js';
+// // パッケージ名ではなく、相対パス、又は絶対パスを使用する必要があるため
+// import * as THREE from './three.module.js';
+// import { GLTFLoader } from './GLTFLoader.js';
 
 
 
