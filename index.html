@@ -114,10 +114,8 @@ https://note.com/npaka/n/na4dd3eaa8e82
 
 
 
-<!-- GLTFLoader.js(r113.2)を(ファイルから直接)読み込む -->
-<script src="./GLTFLoader.js"></script>
 
-<!-- <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/js/loaders/GLTFLoader.js"></script> -->
+
 
 
 <script type="module">
@@ -127,9 +125,24 @@ https://note.com/npaka/n/na4dd3eaa8e82
 
 //JSファイル(のclass)を直接importする場合の書き方
 import * as THREE from './three.module.js';     //ver113.2
+</script>
 
 
 
+
+
+<!-- GLTFLoader.js(r113.2)を(ファイルから直接)読み込む -->
+<script src="./GLTFLoader.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/js/loaders/GLTFLoader.js"></script> -->
+
+
+
+
+
+
+
+<script type="module">
 //const:修飾子  値の変更不可、ブロックスコープ「変数宣言した{}内でのみ呼び出し可能」、宣言のみはできず必ず値を代入する必要がある
 
 //window.innerWidth:ウィンドウ内部の幅をピクセル単位で返す(読み取り専用)
@@ -247,7 +260,11 @@ const parentFunc = async function () {
 
 
     // GLB形式のモデルデータを読み込む
-    const loader = new THREE.GLTFLoader();
+    // 古い書き方
+    // const loader = new THREE.GLTFLoader();
+    // 最新の書き方
+    const loader = new GLTFLoader();
+    
 
     //glbファイルのパスを指定
     loader.load('./cube_small.glb', function(gltf) {
