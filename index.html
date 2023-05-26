@@ -132,11 +132,12 @@ import * as THREE from './three.module.js';     //ver113.2
 
 
 <!-- GLTFLoader.js(r113.2)を(ファイルから直接)読み込む -->
-<!-- <script src="./GLTFLoader.js"></script> -->
+<script src="./GLTFLoader.js"></script>
 
-<script type="module">
-  import { GLTFLoader as THREE_GLTFLoader } from './GLTFLoader.js';
-</script>
+<!-- <script type="module">
+  import { GLTFLoader } from './GLTFLoader.js';
+</script> -->
+
 
 
 
@@ -270,7 +271,7 @@ const parentFunc = async function () {
     // 古い書き方
     // const loader = new THREE.GLTFLoader();
     // 最新の書き方
-    const loader = new THREE_GLTFLoader();
+    const loader = new GLTFLoader();
     
 
     //glbファイルのパスを指定
