@@ -109,13 +109,13 @@ https://note.com/npaka/n/na4dd3eaa8e82
 
 
 <!-- three.min.js(r113.2)を(ファイルから直接)読み込む three.js(r113.2)の圧縮版 -->
-<script src="./three.min.js"></script>
+<!-- <script src="./three.min.js"></script> -->
 
 
 
 
 <!-- GLTFLoader.js(r113.2)を(ファイルから直接)読み込む -->
-<script src="./GLTFLoader.js"></script>
+<!-- <script src="./GLTFLoader.js"></script> -->
 
 <!-- <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/js/loaders/GLTFLoader.js"></script> -->
 
@@ -129,6 +129,18 @@ https://note.com/npaka/n/na4dd3eaa8e82
 import * as THREE from './three.module.js';     //ver113.2
 
 
+
+
+
+// three.js、GLTFLoader.jsをインポート
+import * as THREE from 'three';
+import { GLTFLoader } from 'gltf-loader';
+
+
+
+
+
+// Three.jsとGLTFLoaderを使用したコードの記述
 
 //const:修飾子  値の変更不可、ブロックスコープ「変数宣言した{}内でのみ呼び出し可能」、宣言のみはできず必ず値を代入する必要がある
 
@@ -398,3 +410,7 @@ parentFunc();
 
 </body>
 </html>
+
+
+
+
