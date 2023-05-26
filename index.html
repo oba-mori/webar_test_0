@@ -133,10 +133,12 @@ https://note.com/npaka/n/na4dd3eaa8e82
 
 
 // three.js、GLTFLoader.jsをインポート
-import * as THREE from 'three';
-import { GLTFLoader } from 'gltf-loader';
+// import * as THREE from 'three';
+// import { GLTFLoader } from 'gltf-loader';
 
-
+// パッケージ名ではなく、相対パス、又は絶対パスを使用する必要があるため
+import * as THREE from './node_modules/three/build/three.module.js';
+import { GLTFLoader } from './node_modules/gltf-loader/dist/gltf-loader.js';
 
 
 
